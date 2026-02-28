@@ -5,8 +5,10 @@ function App() {
   // --- STATE MANAGEMENT ---
   const [isSubmitted, setIsSubmitted] = useState(false);
   const [activeTab, setActiveTab] = useState('Phase 1');
+  const [view, setView] = useState('landing'); // Added to fix the "Secure Login" crash
   const [timeLeft, setTimeLeft] = useState({ days: 45, hours: 12, mins: 30, secs: 59 });
   
+  // Form State
   const [nameState, setNameState] = useState("");
   const [officeState, setOfficeState] = useState("");
   const [emailState, setEmailState] = useState("");
@@ -30,12 +32,13 @@ function App() {
       if (response.status === 201 || response.status === 200) {
         setTrackingId(response.data.trackingId || "VFM-" + Math.floor(Math.random() * 1000));
         setIsSubmitted(true);
+        console.log("Mission Success: Inquiry stored in database.");
       }
     } catch (error) {
       console.error("Link Error:", error);
-      alert("Command Center unreachable.");
+      alert("Command Center unreachable. Ensure backend is active.");
     }
-  }; // <--- MAKE SURE THIS BRACKET EXISTS!
+  };
 
   // --- LOGIC: COUNTDOWN ---
   useEffect(() => {
@@ -49,9 +52,10 @@ function App() {
       });
     }, 1000);
     return () => clearInterval(timer);
-  }, []); // <--- AND THIS ONE!
+  }, []);
 
-  // ... (rest of your return statement)
+  return (
+    <div className="min-h-screen bg-[#F8FAFC] text-gray-900 font-sans selection:bg-kenya-red selection:text-white scroll-smooth">
       {/* --- TOP TACTICAL ALERT BAR --- */}
       <div className="bg-kenya-red py-2 px-6 flex justify-center items-center gap-8 overflow-hidden whitespace-nowrap border-b border-black/10">
         {[1, 2, 3].map((i) => (
@@ -87,11 +91,11 @@ function App() {
           </div>
 
           <button 
-  onClick={() => setView('admin')}
-  className="hidden sm:block bg-white text-black px-8 py-3 rounded-full ..."
->
-  Secure Login
-</button>
+            onClick={() => setView('admin')}
+            className="hidden sm:block bg-white text-black px-8 py-3 rounded-full font-black text-[10px] uppercase tracking-widest hover:bg-kenya-red hover:text-white transition-all"
+          >
+            Secure Login
+          </button>
         </div>
       </nav>
 
@@ -276,7 +280,7 @@ function App() {
                     <div className="h-4 w-3/4 bg-slate-100 rounded"></div>
                  </div>
                  <div className="pt-10 border-t border-slate-100 flex justify-between items-center">
-                    <span className="text-slate-400 font-black text-[9px] uppercase tracking-widest tracking-tighter italic">VFM Secretariate</span>
+                    <span className="text-slate-400 font-black text-[9px] uppercase tracking-widest italic">VFM Secretariate</span>
                     <div className="w-12 h-12 rounded-full border-4 border-slate-50 flex items-center justify-center font-black text-slate-200">K</div>
                  </div>
               </div>
@@ -285,7 +289,7 @@ function App() {
         </div>
       </section>
 
-      {/* --- CONTACT THE COMMAND COUNCIL (UPDATED) --- */}
+      {/* --- CONTACT SECTION --- */}
       <section id="contact" className="py-32 bg-[#001A33] relative overflow-hidden scroll-mt-20">
         <div className="absolute top-0 right-0 w-96 h-96 bg-kenya-red/10 blur-[120px] rounded-full"></div>
         <div className="max-w-7xl mx-auto px-6 relative z-10">
@@ -295,7 +299,7 @@ function App() {
                 Request a <span className="text-kenya-red">Strategic</span> <br /> Briefing
               </h2>
               <p className="text-gray-400 text-lg leading-relaxed mb-12 font-medium">
-                Direct access for County Governors, Fire Chiefs, and Ministry Officials. Our Secretariat ensures that every inquiry from a jurisdiction is logged and addressed by the Command Council within one business day.
+                Direct access for County Governors, Fire Chiefs, and Ministry Officials. Our Secretariat ensures that every inquiry from a jurisdiction is logged and addressed within one business day.
               </p>
               
               <div className="space-y-8">
@@ -319,7 +323,7 @@ function App() {
                       <label className="text-[10px] font-black uppercase tracking-widest text-gray-400 ml-2">Full Name</label>
                       <input 
                         type="text" 
-                        placeholder="e.g. Hon. Maina" 
+                        placeholder="Hon. Name" 
                         className="w-full bg-white/5 border border-white/10 rounded-2xl px-6 py-4 text-white focus:outline-none focus:border-kenya-red transition font-bold"
                         value={nameState}
                         onChange={(e) => setNameState(e.target.value)}
@@ -330,7 +334,7 @@ function App() {
                       <label className="text-[10px] font-black uppercase tracking-widest text-gray-400 ml-2">Office/County</label>
                       <input 
                         type="text" 
-                        placeholder="e.g. Nairobi" 
+                        placeholder="Nairobi" 
                         className="w-full bg-white/5 border border-white/10 rounded-2xl px-6 py-4 text-white focus:outline-none focus:border-kenya-red transition font-bold"
                         value={officeState}
                         onChange={(e) => setOfficeState(e.target.value)}
@@ -378,13 +382,7 @@ function App() {
                     <p className="text-kenya-red font-mono font-bold text-2xl tracking-widest italic uppercase">{trackingId}</p>
                   </div>
                   <button 
-                    onClick={() => {
-                        setIsSubmitted(false);
-                        setNameState("");
-                        setOfficeState("");
-                        setEmailState("");
-                        setDetailsState("");
-                    }} 
+                    onClick={() => setIsSubmitted(false)} 
                     className="text-xs font-bold text-gray-500 uppercase tracking-widest hover:text-white transition"
                   >
                     Send Another Message
@@ -393,33 +391,6 @@ function App() {
               )}
             </div>
           </div>
-        </div>
-      </section>
-
-      {/* --- LIVE STATS TICKER --- */}
-      <section className="bg-black py-12 border-y border-white/10">
-        <div className="max-w-7xl mx-auto px-6 flex flex-col lg:flex-row justify-between items-center gap-12">
-           <div className="flex gap-12">
-              <div className="text-center">
-                 <p className="text-4xl font-black text-white italic">{timeLeft.days}d</p>
-                 <p className="text-[8px] font-black text-gray-500 uppercase tracking-widest">Next Deployment</p>
-              </div>
-              <div className="text-center">
-                 <p className="text-4xl font-black text-white italic">{timeLeft.hours}h</p>
-                 <p className="text-[8px] font-black text-gray-500 uppercase tracking-widest">To Briefing</p>
-              </div>
-              <div className="text-center">
-                 <p className="text-4xl font-black text-white italic">{timeLeft.mins}m</p>
-                 <p className="text-[8px] font-black text-gray-500 uppercase tracking-widest">Until Review</p>
-              </div>
-           </div>
-           <div className="h-px lg:h-12 w-full lg:w-px bg-white/10"></div>
-           <div className="flex items-center gap-4">
-              <span className="text-[10px] font-black text-gray-500 uppercase tracking-[.4em]">Operational Security Level</span>
-              <div className="flex gap-1">
-                 {[1,2,3,4,5].map(i => <div key={i} className={`w-4 h-2 rounded-sm ${i < 5 ? 'bg-kenya-green' : 'bg-gray-800'}`}></div>)}
-              </div>
-           </div>
         </div>
       </section>
 
