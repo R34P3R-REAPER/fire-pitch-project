@@ -114,7 +114,28 @@ function App() {
           </div>
         </div>
       </header>
-
+{/* EXECUTIVE MANDATE BLADE */}
+<section className="bg-white border-b border-gray-200 py-12 px-6">
+  <div className="max-w-7xl mx-auto flex flex-col md:flex-row justify-between items-center gap-8">
+    <div className="flex gap-10">
+      <div className="border-l-2 border-red-600 pl-4">
+        <p className="text-[10px] font-bold text-gray-500 uppercase tracking-widest">Legal Status</p>
+        <p className="text-sm font-semibold">Societies Act Sec. 10</p>
+      </div>
+      <div className="border-l-2 border-red-600 pl-4">
+        <p className="text-[10px] font-bold text-gray-500 uppercase tracking-widest">National Registry</p>
+        <p className="text-sm font-semibold">Charter No. 21578</p>
+      </div>
+      <div className="border-l-2 border-red-600 pl-4">
+        <p className="text-[10px] font-bold text-gray-500 uppercase tracking-widest">Operational Since</p>
+        <p className="text-sm font-semibold">July 2002</p>
+      </div>
+    </div>
+    <div className="bg-slate-50 px-6 py-4 rounded border border-gray-100 italic text-sm text-gray-700">
+      "Supporting the socio-economic well-being of all Kenyan communities through professional fire service resource management."
+    </div>
+  </div>
+</section>
       {/* MANDATE GRID (SURFACE STYLE) */}
       <section id="about" className="py-24 px-6 md:px-16 max-w-7xl mx-auto text-center">
         <h2 className="text-3xl font-semibold mb-16 tracking-tight">Our Professional Mandate</h2>
