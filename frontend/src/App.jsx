@@ -1,4 +1,5 @@
-import React, { useState, useEffect,view} from 'react';
+import React, { useState, useEffect } from 'react';
+import axios from 'axios'; // Ensure axios is imported!
 
 function App() {
   // --- STATE MANAGEMENT ---
@@ -24,25 +25,19 @@ function App() {
       details: detailsState
     };
 
-// ✅ CORRECT (Clean Axios way)
-try {
-  const response = await axios.post("https://fire-pitch-backend.onrender.com/api/inquiry", inquiryData);
-  if (response.status === 201 || response.status === 200) {
-    alert("VFM Taskforce: Message Sent!");
-  }
-} catch (error) {
-  console.error("Submission error:", error);
-}
-      const result = await response.json();
-
-      if (result.success) {
-        setTrackingId(result.trackingId);
+    try {
+      const response = await axios.post("https://fire-pitch-backend.onrender.com/api/inquiry", inquiryData);
+      
+      // If using Axios, the data is already parsed in response.data
+      if (response.status === 201 || response.status === 200) {
+        setTrackingId(response.data.trackingId || "VFM-" + Math.floor(Math.random() * 1000));
         setIsSubmitted(true);
         console.log("Mission Success: Inquiry stored in database.");
+        alert("VFM Taskforce: Message Sent!");
       }
     } catch (error) {
       console.error("Database Link Severed:", error);
-      alert("Connection to Command Center failed. Ensure your Backend server is running on Port 5000.");
+      alert("Connection to Command Center failed. Check your internet or backend status.");
     }
   };
 
@@ -59,10 +54,6 @@ try {
     }, 1000);
     return () => clearInterval(timer);
   }, []);
-
-  return (
-    <div className="min-h-screen bg-[#F8FAFC] text-gray-900 font-sans selection:bg-kenya-red selection:text-white scroll-smooth">
-      
       {/* --- TOP TACTICAL ALERT BAR --- */}
       <div className="bg-kenya-red py-2 px-6 flex justify-center items-center gap-8 overflow-hidden whitespace-nowrap border-b border-black/10">
         {[1, 2, 3].map((i) => (
