@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import axios from 'axios'; // Ensure axios is imported!
+import axios from 'axios';
 
 function App() {
   // --- STATE MANAGEMENT ---
@@ -7,7 +7,6 @@ function App() {
   const [activeTab, setActiveTab] = useState('Phase 1');
   const [timeLeft, setTimeLeft] = useState({ days: 45, hours: 12, mins: 30, secs: 59 });
   
-  // New: Form State
   const [nameState, setNameState] = useState("");
   const [officeState, setOfficeState] = useState("");
   const [emailState, setEmailState] = useState("");
@@ -28,18 +27,33 @@ function App() {
     try {
       const response = await axios.post("https://fire-pitch-backend.onrender.com/api/inquiry", inquiryData);
       
-      // If using Axios, the data is already parsed in response.data
       if (response.status === 201 || response.status === 200) {
         setTrackingId(response.data.trackingId || "VFM-" + Math.floor(Math.random() * 1000));
         setIsSubmitted(true);
         console.log("Mission Success: Inquiry stored in database.");
-        alert("VFM Taskforce: Message Sent!");
       }
     } catch (error) {
       console.error("Database Link Severed:", error);
-      alert("Connection to Command Center failed. Check your internet or backend status.");
+      alert("Connection to Command Center failed. Please try again later.");
     }
   };
+
+  // --- LOGIC: COUNTDOWN ---
+  useEffect(() => {
+    const timer = setInterval(() => {
+      setTimeLeft(prev => {
+        if (prev.secs > 0) return { ...prev, secs: prev.secs - 1 };
+        if (prev.mins > 0) return { ...prev, mins: prev.mins - 1, secs: 59 };
+        if (prev.hours > 0) return { ...prev, hours: prev.hours - 1, mins: 59, secs: 59 };
+        if (prev.days > 0) return { ...prev, days: prev.days - 1, hours: 23, mins: 59, secs: 59 };
+        return prev;
+      });
+    }, 1000);
+    return () => clearInterval(timer);
+  }, []);
+
+  return (
+    <div className="min-h-screen bg-[#F8FAFC] text-gray-900 font-sans selection:bg-red-600 selection:text-white scroll-smooth">
 
   // --- LOGIC: HIGH-PRECISION COUNTDOWN ---
   useEffect(() => {
