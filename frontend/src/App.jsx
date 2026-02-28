@@ -24,13 +24,15 @@ function App() {
       details: detailsState
     };
 
-    try {
-      const response = await fetch('http://localhost:5000/api/inquiries', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(inquiryData),
-      });
-
+   try {
+  const response = await axios.post("https://fire-pitch-backend.onrender.com/api/inquiry", inquiryData);
+  
+  if (response.status === 201) {
+    alert("VFM Taskforce: Inquiry Received!");
+  }
+} catch (error) {
+  console.error("Transmission Error:", error);
+}
       const result = await response.json();
 
       if (result.success) {
