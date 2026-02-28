@@ -1,46 +1,51 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 
-// --- SECRETARIAT ARCHIVE (ADMIN) ---
-const KenfibaArchive = ({ onBack }) => {
+// --- SECRETARIAT REGISTRY (MODERN MODAL/VIEW) ---
+const RegistryDashboard = ({ onBack }) => {
   const [logs, setLogs] = useState([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     axios.get('https://kenfiba-backend.onrender.com/api/admin/archives')
       .then(res => { setLogs(res.data); setLoading(false); })
-      .catch(err => { console.error("Access Denied", err); setLoading(false); });
+      .catch(err => { console.error("Database connection failed", err); setLoading(false); });
   }, []);
 
   return (
-    <div className="min-h-screen bg-[#000d1a] text-white p-8 font-mono">
-      <div className="max-w-7xl mx-auto">
-        <div className="flex justify-between items-end border-b border-white/10 pb-8 mb-8">
+    <div className="min-h-screen bg-[#f2f2f2] text-[#1a1a1a] p-10 animate-in fade-in duration-300">
+      <div className="max-w-6xl mx-auto bg-white shadow-sm border border-gray-200 rounded-sm">
+        <div className="p-8 border-b border-gray-200 flex justify-between items-center">
           <div>
-            <h1 className="text-4xl font-black uppercase italic tracking-tighter">KENFIBA <span className="text-red-600">Registry</span></h1>
-            <p className="text-green-500 text-[10px] font-black uppercase tracking-[0.4em] mt-2">Society No. 21578 // Official Correspondence</p>
+            <h1 className="text-2xl font-semibold tracking-tight">KENFIBA Official Registry</h1>
+            <p className="text-xs text-gray-500 mt-1">Society No. 21578 | Established July 2002 </p>
           </div>
-          <button onClick={onBack} className="text-[10px] font-black border border-white/20 px-6 py-2 hover:bg-white hover:text-black transition">Close Archive</button>
+          <button onClick={onBack} className="bg-[#0067b8] text-white px-6 py-2 text-sm font-semibold hover:bg-[#005da6] transition">Close Dashboard</button>
         </div>
-        {loading ? <p className="animate-pulse">Accessing Secretariat Records...</p> : (
-          <div className="overflow-x-auto bg-white/5 rounded-xl border border-white/10">
-            <table className="w-full text-left">
-              <thead className="text-[10px] uppercase text-gray-500 border-b border-white/10">
-                <tr><th className="p-6">Registry Date</th><th className="p-6">Tracking ID</th><th className="p-6">Official Name</th><th className="p-6">Status</th></tr>
+        <div className="p-0">
+          {loading ? <div className="p-10 text-center text-sm">Synchronizing with Secretariat Database...</div> : (
+            <table className="w-full text-left text-sm">
+              <thead className="bg-gray-50 border-b border-gray-200">
+                <tr>
+                  <th className="p-4 font-semibold">Logged Date</th>
+                  <th className="p-4 font-semibold">Inquiry ID</th>
+                  <th className="p-4 font-semibold">Origin Office</th>
+                  <th className="p-4 font-semibold">Status</th>
+                </tr>
               </thead>
-              <tbody className="text-sm">
+              <tbody>
                 {logs.map(log => (
-                  <tr key={log._id} className="border-b border-white/5 hover:bg-white/5 transition">
-                    <td className="p-6 text-gray-400">{new Date(log.createdAt).toLocaleDateString()}</td>
-                    <td className="p-6 text-red-500 font-bold">{log.trackingId}</td>
-                    <td className="p-6 uppercase">{log.name}</td>
-                    <td className="p-6"><span className="text-green-500 text-[9px] font-black border border-green-500/30 px-3 py-1 rounded-full">VERIFIED</span></td>
+                  <tr key={log._id} className="border-b border-gray-100 hover:bg-gray-50">
+                    <td className="p-4 text-gray-600">{new Date(log.createdAt).toLocaleDateString()}</td>
+                    <td className="p-4 font-bold text-[#0067b8]">{log.trackingId}</td>
+                    <td className="p-4 font-medium uppercase">{log.office}</td>
+                    <td className="p-4"><span className="text-[10px] font-bold bg-green-100 text-green-800 px-2 py-1 uppercase">Active</span></td>
                   </tr>
                 ))}
               </tbody>
             </table>
-          </div>
-        )}
+          )}
+        </div>
       </div>
     </div>
   );
@@ -51,7 +56,6 @@ function App() {
   const [view, setView] = useState('landing');
   const [isSubmitted, setIsSubmitted] = useState(false);
   const [trackingId, setTrackingId] = useState("");
-  const [activeTab, setActiveTab] = useState('Vision');
   const [form, setForm] = useState({ name: "", office: "", email: "", details: "" });
 
   const handleInquiry = async (e) => {
@@ -60,169 +64,147 @@ function App() {
       const res = await axios.post("https://kenfiba-backend.onrender.com/api/inquiry", form);
       setTrackingId(res.data.trackingId);
       setIsSubmitted(true);
-    } catch (err) { alert("Secretariat connection offline."); }
+    } catch (err) { alert("Connectivity Error: Secretariat database unreachable."); }
   };
 
-  if (view === 'admin') return <KenfibaArchive onBack={() => setView('landing')} />;
+  if (view === 'admin') return <RegistryDashboard onBack={() => setView('landing')} />;
 
   return (
-    <div className="min-h-screen bg-white text-[#001A33] font-sans selection:bg-red-600 selection:text-white">
+    <div className="min-h-screen bg-white text-[#1a1a1a] font-sans">
       
-      {/* LEGAL STATUS BAR */}
-      <div className="bg-[#000d1a] py-2 px-6 flex justify-center border-b border-red-600 overflow-hidden">
-        <div className="flex gap-12 animate-marquee whitespace-nowrap text-[9px] font-black text-white/60 tracking-[0.4em] uppercase">
-          <span>Registered Society No. 21578</span>
-          <span>•</span>
-          <span>Societies Act Section 10</span>
-          <span>•</span>
-          <span>Established July 15, 2002</span>
-          <span>•</span>
-          <span>Official Professional Voice of Kenya Fire Brigades</span>
+      {/* MICROSOFT-STYLE NAV BAR */}
+      <nav className="h-[54px] border-b border-gray-200 px-4 md:px-10 flex items-center justify-between sticky top-0 bg-white/95 backdrop-blur-md z-50">
+        <div className="flex items-center gap-6 h-full">
+          <div className="flex items-center gap-2 cursor-pointer" onClick={() => window.scrollTo(0,0)}>
+            <div className="grid grid-cols-2 gap-0.5 w-5 h-5">
+              <div className="bg-[#f25022]"></div><div className="bg-[#7fba00]"></div>
+              <div className="bg-[#00a4ef]"></div><div className="bg-[#ffb900]"></div>
+            </div>
+            <span className="font-semibold text-lg tracking-tight hidden md:block">KENFIBA</span>
+          </div>
+          <div className="hidden md:flex gap-6 text-[13px] h-full items-center">
+            <a href="#about" className="hover:border-b-2 border-black h-full flex items-center px-1">About</a>
+            <a href="#objectives" className="hover:border-b-2 border-black h-full flex items-center px-1">Objectives</a>
+            <a href="#contact" className="hover:border-b-2 border-black h-full flex items-center px-1">Secretariat</a>
+          </div>
         </div>
-      </div>
-
-      {/* NAVIGATION */}
-      <nav className="h-24 sticky top-0 bg-white/90 backdrop-blur-xl border-b border-gray-100 z-50 px-10 flex items-center justify-between">
         <div className="flex items-center gap-4">
-          <div className="w-12 h-12 bg-black flex flex-col p-1 rounded-lg shadow-xl">
-            <div className="flex-1 bg-black"></div><div className="flex-1 bg-red-600"></div><div className="flex-1 bg-green-700"></div>
-          </div>
-          <div>
-            <span className="font-black text-3xl tracking-tighter uppercase italic block leading-none">KEN<span className="text-red-600">FIBA</span></span>
-            <span className="text-[9px] font-bold text-gray-400 uppercase tracking-widest">National Fire Brigades Assoc.</span>
-          </div>
+           <button onClick={() => setView('admin')} className="text-[13px] hover:underline underline-offset-4">Sign in</button>
+           <a href="#contact" className="bg-[#0067b8] text-white px-4 py-1.5 text-[13px] font-semibold hover:bg-[#005da6] transition shadow-sm">Contact Registry</a>
         </div>
-        <div className="hidden lg:flex gap-10 text-[10px] font-black uppercase tracking-widest text-gray-400">
-          <a href="#mandate" className="hover:text-red-600 transition">Our Mandate</a>
-          <a href="#objectives" className="hover:text-red-600 transition">Strategic Objectives</a>
-          <a href="#contact" className="hover:text-red-600 transition">Secretariat</a>
-        </div>
-        <button onClick={() => setView('admin')} className="bg-[#000d1a] text-white px-8 py-3 rounded-full font-black text-[9px] uppercase tracking-widest hover:bg-red-600 transition shadow-lg">Registry Access</button>
       </nav>
 
-      {/* HERO SECTION */}
-      <header className="relative py-32 px-10 bg-slate-50 overflow-hidden border-b border-gray-100">
-        <div className="max-w-7xl mx-auto grid lg:grid-cols-2 gap-20 items-center">
-          <div className="relative z-10">
-            <div className="inline-flex items-center gap-3 px-4 py-2 rounded-full bg-red-600/5 border border-red-600/10 text-red-600 font-black text-[9px] uppercase tracking-[0.3em] mb-8">
-              <span className="w-2 h-2 bg-red-600 rounded-full animate-ping"></span>
-              Established 2002 by Fire Officers Countrywide
-            </div>
-            <h1 className="text-7xl lg:text-[110px] font-black leading-[0.85] mb-10 tracking-tighter uppercase italic">
-              Legacy <br /> <span className="text-red-600">Safety</span> <br /> <span className="text-slate-300">Expertise.</span>
+      {/* HERO BLADE (MICROSOFT 365 STYLE) */}
+      <header className="relative py-20 px-6 md:px-16 bg-[#f2f2f2] border-b border-white">
+        <div className="max-w-7xl mx-auto flex flex-col md:flex-row items-center gap-12">
+          <div className="md:w-1/2 space-y-6">
+            <h1 className="text-4xl md:text-5xl font-semibold tracking-tight leading-tight">
+              Leading Professional Standards for Kenya Fire Brigades.
             </h1>
-            <p className="text-xl text-gray-600 max-w-lg mb-12 leading-relaxed font-medium italic border-l-4 border-green-600 pl-6">
-              "Support the firemen; the next life they save might be yours."
+            <p className="text-lg text-gray-700 font-normal max-w-lg leading-snug">
+              Kenya National Fire Brigades Association (KENFIBA) is the professional voice dedicated to community safety and hazard reduction since 2002.
             </p>
-            <div className="flex flex-col sm:flex-row gap-8">
-              <a href="#contact" className="bg-red-600 text-white text-center px-12 py-6 rounded-2xl font-black uppercase tracking-widest shadow-2xl hover:-translate-y-1 transition-all">Submit Correspondence</a>
-              <div className="flex flex-col justify-center border-l border-gray-200 pl-8">
-                <span className="text-[10px] font-black text-gray-400 uppercase tracking-widest">HQ Location</span>
-                <span className="font-bold text-sm">Tom Mboya St, Nairobi</span>
-              </div>
+            <div className="flex gap-4">
+              <a href="#about" className="bg-[#0067b8] text-white px-8 py-2.5 font-semibold hover:bg-[#005da6] transition shadow-sm">Learn more</a>
+              <a href="#contact" className="text-[#0067b8] font-semibold flex items-center gap-2 hover:underline">Register an inquiry &gt;</a>
             </div>
           </div>
-          <div className="relative rounded-[4rem] overflow-hidden shadow-2xl border-[16px] border-white group">
-            <img src="https://images.unsplash.com/photo-1516533075015-a3838414c3ca?auto=format&fit=crop&q=80&w=1000" className="w-full h-full object-cover grayscale group-hover:grayscale-0 transition-all duration-1000" alt="KENFIBA Operations" />
+          <div className="md:w-1/2 rounded-sm overflow-hidden shadow-xl">
+             <img src="https://images.unsplash.com/photo-1516533075015-a3838414c3ca?auto=format&fit=crop&q=80&w=1200" className="w-full h-auto" alt="KENFIBA Operations" />
           </div>
         </div>
       </header>
 
-      {/* MANDATE SECTION (MISSION/VISION FROM DOCS) */}
-      <section id="mandate" className="py-40 bg-white">
-        <div className="max-w-7xl mx-auto px-10">
-          <div className="grid lg:grid-cols-12 gap-20">
-            <div className="lg:col-span-4">
-              <h2 className="text-6xl font-black uppercase italic tracking-tighter leading-none mb-10 text-outline text-transparent">Official <br/><span className="text-[#001A33]">Mandate</span></h2>
-              <div className="flex flex-col gap-4">
-                {['Vision', 'Mission', 'Motto'].map(tab => (
-                  <button key={tab} onClick={() => setActiveTab(tab)} className={`text-left p-6 rounded-2xl border-2 font-black uppercase text-xs tracking-widest transition-all ${activeTab === tab ? 'border-red-600 bg-red-50 text-red-600' : 'border-gray-100 text-gray-400'}`}>
-                    {tab} Statement
-                  </button>
-                ))}
-              </div>
+      {/* MANDATE GRID (SURFACE STYLE) */}
+      <section id="about" className="py-24 px-6 md:px-16 max-w-7xl mx-auto text-center">
+        <h2 className="text-3xl font-semibold mb-16 tracking-tight">Our Professional Mandate</h2>
+        <div className="grid md:grid-cols-3 gap-12">
+          {[
+            { title: "Vision", text: "Making Kenya society safer through leadership in fire service matters.", link: "About Vision" },
+            { title: "Mission", text: "To reduce deaths, injuries, and property damage caused by fire hazards.", link: "About Mission" },
+            { title: "Motto", text: "'Support the firemen; the next life they save might be yours'.", link: "Learn more" }
+          ].map((card) => (
+            <div key={card.title} className="text-left group cursor-pointer">
+              <h3 className="text-xl font-semibold mb-4">{card.title}</h3>
+              <p className="text-sm text-gray-600 mb-6 leading-relaxed italic">"{card.text}"</p>
+              <span className="text-[#0067b8] text-sm font-semibold group-hover:underline">{card.link} &gt;</span>
             </div>
-            <div className="lg:col-span-8 bg-slate-50 p-16 rounded-[4rem] border border-gray-100 shadow-inner">
-               {activeTab === 'Vision' && <div className="animate-in fade-in"><h3 className="text-4xl font-black italic mb-8 uppercase text-red-600">Making Kenya Society Safer</h3><p className="text-xl text-gray-600 leading-relaxed font-bold italic">"To provide the professional voice and leadership role in improving the well-being of local communities in all fire service matters."</p></div>}
-               {activeTab === 'Mission' && <div className="animate-in fade-in"><h3 className="text-4xl font-black italic mb-8 uppercase text-red-600">Life & Property Protection</h3><p className="text-xl text-gray-600 leading-relaxed font-bold italic">"To reduce deaths, injuries, and damages of property caused by fire and other related hazards."</p></div>}
-               {activeTab === 'Motto' && <div className="animate-in fade-in"><h3 className="text-4xl font-black italic mb-8 uppercase text-red-600">The Next Life</h3><p className="text-3xl text-gray-900 font-black italic leading-tight">"Support the firemen; the next life they save might be yours."</p></div>}
-            </div>
-          </div>
+          ))}
         </div>
       </section>
 
-      {/* STRATEGIC OBJECTIVES SECTION */}
-      <section id="objectives" className="py-40 bg-[#001A33] text-white rounded-[5rem] mx-6">
-        <div className="max-w-7xl mx-auto px-16">
-          <div className="grid lg:grid-cols-2 gap-24 items-center">
-            <div>
-              <h2 className="text-5xl font-black uppercase italic tracking-tighter mb-12">Strategic <br/><span className="text-red-600">Objectives</span></h2>
-              <div className="space-y-12">
-                {[
-                  { h: "Professional Standards", p: "Continuously improve standards and help attain high levels of expertise and effectiveness by developing knowledge, skills, and understanding to ensure competence." },
-                  { h: "Policy Partnership", p: "Develop policies affecting members and their employing authorities (Councils) to influence public policy opinion in Kenyan and International communities." },
-                  { h: "Disaster Preparedness", p: "Reducing loss of life, injury, and property damage after both natural fire attacks and those caused by terrorist attacks." }
-                ].map(item => (
-                  <div key={item.h} className="group border-l-4 border-white/10 pl-8 hover:border-red-600 transition-all">
-                    <h4 className="text-xl font-black uppercase italic mb-3 group-hover:text-red-600 transition">{item.h}</h4>
-                    <p className="text-gray-400 font-medium leading-relaxed">{item.p}</p>
-                  </div>
-                ))}
-              </div>
-            </div>
-            <div className="bg-white/5 p-12 rounded-[4rem] border border-white/10 backdrop-blur-3xl">
-               <div className="mb-10 text-center">
-                 <p className="text-[10px] font-black text-red-600 uppercase tracking-[0.4em] mb-4 text-center">Association Aim</p>
-                 <p className="text-2xl font-bold italic">"To continue acting as the professional voice of Kenya Fire Brigades."</p>
+      {/* OBJECTIVES BLADE (AZURE STYLE) */}
+      <section id="objectives" className="py-20 bg-[#f2f2f2]">
+        <div className="max-w-7xl mx-auto px-6 md:px-16 grid md:grid-cols-2 gap-20 items-center">
+          <div className="space-y-8">
+            <h2 className="text-3xl font-semibold tracking-tight">Association Objectives</h2>
+            <div className="space-y-6">
+               <div className="border-l-4 border-[#0067b8] pl-6 py-2">
+                  <h4 className="font-semibold mb-1">Professional Standards</h4>
+                  <p className="text-sm text-gray-600">Continuously improving expertise and knowledge to ensure member competence.</p>
                </div>
-               <div className="grid grid-cols-2 gap-4">
-                 <div className="p-8 bg-white/5 rounded-3xl text-center"><span className="block text-3xl font-black text-red-600">21578</span><span className="text-[9px] font-black uppercase text-gray-500 tracking-widest">Reg No.</span></div>
-                 <div className="p-8 bg-white/5 rounded-3xl text-center"><span className="block text-3xl font-black text-green-500">2002</span><span className="text-[9px] font-black uppercase text-gray-500 tracking-widest">Founded</span></div>
+               <div className="border-l-4 border-gray-300 pl-6 py-2 hover:border-[#0067b8] transition">
+                  <h4 className="font-semibold mb-1">Policy Advocacy</h4>
+                  <p className="text-sm text-gray-600">Developing policies and working with stakeholders to influence public policy.</p>
+               </div>
+               <div className="border-l-4 border-gray-300 pl-6 py-2 hover:border-[#0067b8] transition">
+                  <h4 className="font-semibold mb-1">Disaster Mitigation</h4>
+                  <p className="text-sm text-gray-600">Strategies to reduce loss from natural fires and terrorist fire attacks.</p>
                </div>
             </div>
           </div>
+          <div className="bg-white p-10 shadow-sm border border-gray-200">
+             <span className="text-[11px] font-bold text-[#0067b8] uppercase tracking-widest block mb-4">Official Accreditation</span>
+             <p className="text-lg font-normal mb-8 leading-snug tracking-tight">
+               Registered under Section 10 of the Societies Act, No. 21578.
+             </p>
+             <div className="flex gap-10">
+                <div><p className="text-2xl font-semibold">2002</p><p className="text-[11px] text-gray-500 uppercase">Established</p></div>
+                <div><p className="text-2xl font-semibold">HQ</p><p className="text-[11px] text-gray-500 uppercase text-nowrap">Tom Mboya Street </p></div>
+             </div>
+          </div>
         </div>
       </section>
 
-      {/* SECRETARIAT CONTACT (INFO FROM DOCS) */}
-      <section id="contact" className="py-40 bg-white scroll-mt-20">
-        <div className="max-w-4xl mx-auto px-10 text-center">
-          <h2 className="text-5xl font-black uppercase italic tracking-tighter mb-6">Secretariat <span className="text-red-600 underline">Registry</span></h2>
-          <p className="text-gray-500 mb-20 font-medium">Official Inquiry portal for County Councils, Officers, and International Stakeholders.</p>
-          
-          {!isSubmitted ? (
-            <form onSubmit={handleInquiry} className="grid gap-6 text-left">
-              <div className="grid md:grid-cols-2 gap-6">
-                <input type="text" placeholder="Officer Name" className="w-full px-8 py-5 rounded-2xl bg-slate-50 border border-gray-200 outline-none focus:border-red-600 transition font-bold" value={form.name} onChange={e => setForm({...form, name: e.target.value})} required />
-                <input type="text" placeholder="County / Jurisdiction" className="w-full px-8 py-5 rounded-2xl bg-slate-50 border border-gray-200 outline-none focus:border-red-600 transition font-bold" value={form.office} onChange={e => setForm({...form, office: e.target.value})} required />
-              </div>
-              <input type="email" placeholder="Official Email Address" className="w-full px-8 py-5 rounded-2xl bg-slate-50 border border-gray-200 outline-none focus:border-red-600 transition font-bold" value={form.email} onChange={e => setForm({...form, email: e.target.value})} required />
-              <textarea rows="4" placeholder="Briefing Details for Secretariat..." className="w-full px-8 py-5 rounded-2xl bg-slate-50 border border-gray-200 outline-none focus:border-red-600 transition font-bold resize-none" value={form.details} onChange={e => setForm({...form, details: e.target.value})} required></textarea>
-              <button type="submit" className="w-full bg-[#001A33] text-white py-6 rounded-2xl font-black uppercase tracking-widest hover:bg-red-600 transition shadow-xl">Submit to Archive</button>
-            </form>
-          ) : (
-            <div className="bg-green-50 p-16 rounded-[4rem] border border-green-100 animate-in zoom-in-95">
-              <div className="w-20 h-20 bg-green-500 rounded-full flex items-center justify-center text-white mx-auto mb-8 text-3xl font-black">✓</div>
-              <h3 className="text-3xl font-black text-green-900 uppercase italic mb-2 tracking-tighter">Inquiry Logged</h3>
-              <p className="text-green-700 font-mono mb-8 font-black text-lg tracking-widest uppercase">Registry ID: {trackingId}</p>
-              <button onClick={() => setIsSubmitted(false)} className="text-[10px] font-black uppercase tracking-widest text-green-600 underline">File New Entry</button>
-            </div>
-          )}
-        </div>
+      {/* CONTACT (MODERN FORM) */}
+      <section id="contact" className="py-24 px-6 md:px-16 max-w-3xl mx-auto text-center">
+        <h2 className="text-3xl font-semibold mb-4 tracking-tight">Contact the Secretariat</h2>
+        <p className="text-sm text-gray-600 mb-12">Submit official inquiries regarding professional standards or association membership.</p>
+        
+        {!isSubmitted ? (
+          <form onSubmit={handleInquiry} className="text-left space-y-4">
+             <div className="grid md:grid-cols-2 gap-4">
+                <input type="text" placeholder="Full Name" className="w-full border border-gray-300 px-4 py-2 text-sm outline-none focus:border-[#0067b8]" value={form.name} onChange={e => setForm({...form, name: e.target.value})} required />
+                <input type="text" placeholder="Office / County" className="w-full border border-gray-300 px-4 py-2 text-sm outline-none focus:border-[#0067b8]" value={form.office} onChange={e => setForm({...form, office: e.target.value})} required />
+             </div>
+             <input type="email" placeholder="Official Email" className="w-full border border-gray-300 px-4 py-2 text-sm outline-none focus:border-[#0067b8]" value={form.email} onChange={e => setForm({...form, email: e.target.value})} required />
+             <textarea rows="4" placeholder="Inquiry Details" className="w-full border border-gray-300 px-4 py-2 text-sm outline-none focus:border-[#0067b8] resize-none" value={form.details} onChange={e => setForm({...form, details: e.target.value})} required></textarea>
+             <button type="submit" className="bg-[#0067b8] text-white px-10 py-2.5 text-sm font-semibold hover:bg-[#005da6] transition shadow-sm">Submit Registration</button>
+          </form>
+        ) : (
+          <div className="bg-gray-50 p-12 border border-gray-200 animate-in zoom-in-95">
+             <h3 className="text-xl font-semibold mb-2">Inquiry Successfully Logged</h3>
+             <p className="text-xs text-gray-500 mb-6">Tracking ID: <span className="font-bold text-black">{trackingId}</span></p>
+             <button onClick={() => setIsSubmitted(false)} className="text-[#0067b8] text-sm font-semibold hover:underline">New Inquiry &gt;</button>
+          </div>
+        )}
       </section>
 
-      {/* OFFICIAL FOOTER */}
-      <footer className="bg-slate-50 py-24 border-t border-gray-200 px-10">
-        <div className="max-w-7xl mx-auto flex flex-col lg:flex-row justify-between items-center gap-12">
-          <div className="text-center lg:text-left">
-            <span className="font-black text-3xl tracking-tighter uppercase italic text-[#001A33]">KEN<span className="text-red-600">FIBA</span></span>
-            <p className="text-[10px] text-gray-400 font-bold uppercase tracking-[0.4em] mt-3 italic">Professional Voice of Kenya Fire Brigades</p>
-          </div>
-          <div className="flex flex-wrap justify-center gap-12 text-[10px] font-black uppercase tracking-widest text-gray-500">
-             <div className="text-center lg:text-left"><span className="block text-[#001A33] mb-1">Office</span>Tom Mboya Street, Fire HQ</div>
-             <div className="text-center lg:text-left"><span className="block text-[#001A33] mb-1">Registration</span>Society No. 21578</div>
-             <div className="text-center lg:text-left"><span className="block text-[#001A33] mb-1">Contact</span>0721-981017 | kenfiba@yahoo.com</div>
-          </div>
+      {/* FOOTER (MICROSOFT STYLE) */}
+      <footer className="bg-[#f2f2f2] pt-12 pb-6 px-6 md:px-16">
+        <div className="max-w-7xl mx-auto grid grid-cols-2 md:grid-cols-4 gap-8 mb-12">
+          <div><h4 className="font-semibold text-xs text-gray-600 mb-4">Registration</h4><p className="text-xs text-gray-500 leading-relaxed">Society No. 21578 [cite: 1]<br/>Sheria House Registered </p></div>
+          <div><h4 className="font-semibold text-xs text-gray-600 mb-4">Headquarters</h4><p className="text-xs text-gray-500 leading-relaxed">Tom Mboya Street<br/>Fire & Ambulance HQ </p></div>
+          <div><h4 className="font-semibold text-xs text-gray-600 mb-4">Contact</h4><p className="text-xs text-gray-500 leading-relaxed">kenfiba@yahoo.com<br/>0721-981017 </p></div>
+          <div><h4 className="font-semibold text-xs text-gray-600 mb-4">Mailing</h4><p className="text-xs text-gray-500 leading-relaxed">P.O. Box 10104-00400<br/>Nairobi, Kenya </p></div>
+        </div>
+        <div className="max-w-7xl mx-auto flex flex-col md:flex-row justify-between items-center border-t border-gray-300 pt-6">
+           <p className="text-[11px] text-gray-600">© 2026 Kenya National Fire Brigades Association. All rights reserved.</p>
+           <div className="flex gap-6 text-[11px] text-gray-600 mt-4 md:mt-0">
+              <span className="hover:underline cursor-pointer">Privacy & Cookies</span>
+              <span className="hover:underline cursor-pointer">Terms of use</span>
+              <span className="hover:underline cursor-pointer">Contact Us</span>
+           </div>
         </div>
       </footer>
     </div>
