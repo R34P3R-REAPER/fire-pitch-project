@@ -24,14 +24,14 @@ function App() {
       details: detailsState
     };
 
-   try {
+// ✅ CORRECT (Clean Axios way)
+try {
   const response = await axios.post("https://fire-pitch-backend.onrender.com/api/inquiry", inquiryData);
-  
-  if (response.status === 201) {
-    alert("VFM Taskforce: Inquiry Received!");
+  if (response.status === 201 || response.status === 200) {
+    alert("VFM Taskforce: Message Sent!");
   }
 } catch (error) {
-  console.error("Transmission Error:", error);
+  console.error("Submission error:", error);
 }
       const result = await response.json();
 
