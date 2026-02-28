@@ -1,0 +1,5 @@
+@import "tailwindcss";
+.kenya-border {
+  border-bottom: 8px solid transparent;
+  border-image: linear-gradient(to right, #000 33%, #BF0000 33% 66%, #006600 66%) 1;
+}
