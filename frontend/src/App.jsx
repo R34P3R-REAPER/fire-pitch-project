@@ -30,13 +30,12 @@ function App() {
       if (response.status === 201 || response.status === 200) {
         setTrackingId(response.data.trackingId || "VFM-" + Math.floor(Math.random() * 1000));
         setIsSubmitted(true);
-        console.log("Mission Success: Inquiry stored in database.");
       }
     } catch (error) {
-      console.error("Database Link Severed:", error);
-      alert("Connection to Command Center failed. Please try again later.");
+      console.error("Link Error:", error);
+      alert("Command Center unreachable.");
     }
-  };
+  }; // <--- MAKE SURE THIS BRACKET EXISTS!
 
   // --- LOGIC: COUNTDOWN ---
   useEffect(() => {
@@ -50,24 +49,9 @@ function App() {
       });
     }, 1000);
     return () => clearInterval(timer);
-  }, []);
+  }, []); // <--- AND THIS ONE!
 
-  return (
-    <div className="min-h-screen bg-[#F8FAFC] text-gray-900 font-sans selection:bg-red-600 selection:text-white scroll-smooth">
-
-  // --- LOGIC: HIGH-PRECISION COUNTDOWN ---
-  useEffect(() => {
-    const timer = setInterval(() => {
-      setTimeLeft(prev => {
-        if (prev.secs > 0) return { ...prev, secs: prev.secs - 1 };
-        if (prev.mins > 0) return { ...prev, mins: prev.mins - 1, secs: 59 };
-        if (prev.hours > 0) return { ...prev, hours: prev.hours - 1, mins: 59, secs: 59 };
-        if (prev.days > 0) return { ...prev, days: prev.days - 1, hours: 23, mins: 59, secs: 59 };
-        return prev;
-      });
-    }, 1000);
-    return () => clearInterval(timer);
-  }, []);
+  // ... (rest of your return statement)
       {/* --- TOP TACTICAL ALERT BAR --- */}
       <div className="bg-kenya-red py-2 px-6 flex justify-center items-center gap-8 overflow-hidden whitespace-nowrap border-b border-black/10">
         {[1, 2, 3].map((i) => (
